@@ -232,7 +232,6 @@ function tick() {
 
 function setPendulumPosition(percent) {
   els.pendulum.style.left = `${percent}%`;
-  els.pendulum.style.transform = `translate(${percent === 100 ? "-100%" : "0"}, -50%)`;
 }
 
 function runMetronomeFrame(now) {
@@ -460,7 +459,7 @@ function bindEvents() {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js?v=4").catch(() => {});
+    navigator.serviceWorker.register("./service-worker.js?v=5").catch(() => {});
   }
 }
 

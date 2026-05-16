@@ -317,7 +317,7 @@ button:disabled {
   border-radius: 999px;
   background: var(--accent);
   box-shadow: 0 8px 24px rgba(12, 122, 107, 0.35);
-  transform: translate(0, -50%);
+  transform: translateY(-50%);
 }
 
 .bpm-control {

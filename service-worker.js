@@ -1,10 +1,10 @@
-const CACHE_NAME = "piano-practice-tracker-v4";
+const CACHE_NAME = "piano-practice-tracker-v5";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=4",
-  "./app.js?v=4",
-  "./manifest.json?v=4",
+  "./styles.css?v=5",
+  "./app.js?v=5",
+  "./manifest.json?v=5",
   "./icon.svg",
   "./icon-192.png",
   "./icon-512.png"
