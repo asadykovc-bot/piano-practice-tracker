@@ -154,12 +154,25 @@ h2 {
 }
 
 .timer-summary > div,
+.quiet-session,
 .stat-block {
   min-height: 88px;
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-soft);
+}
+
+.quiet-session {
+  display: grid;
+  margin-bottom: 16px;
+}
+
+.quiet-session strong {
+  display: block;
+  margin-top: 8px;
+  font-size: clamp(1.35rem, 6vw, 2rem);
+  line-height: 1;
 }
 
 .summary-label,

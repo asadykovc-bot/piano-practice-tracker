@@ -41,19 +41,28 @@
                 </button>
               </div>
 
-              <div class="timer-summary">
-                <div>
-                  <span class="summary-label">Saved today</span>
-                  <strong id="todayTotal">0m</strong>
+              <div class="time-details" id="timeDetails" hidden>
+                <div class="timer-summary">
+                  <div>
+                    <span class="summary-label">Saved today</span>
+                    <strong id="todayTotal">0m</strong>
+                  </div>
+                  <div>
+                    <span class="summary-label">Current session</span>
+                    <strong id="compactSessionTime">0m</strong>
+                  </div>
                 </div>
-                <div>
-                  <span class="summary-label">Current session</span>
-                  <strong id="compactSessionTime">0m</strong>
+
+                <div class="stopwatch-wrap" id="stopwatchWrap">
+                  <div class="stopwatch" id="stopwatch">00:00:00</div>
                 </div>
               </div>
 
-              <div class="stopwatch-wrap" id="stopwatchWrap" hidden>
-                <div class="stopwatch" id="stopwatch">00:00:00</div>
+              <div class="quiet-session" id="quietSession">
+                <div>
+                  <span class="summary-label">Time hidden</span>
+                  <strong>Focus mode</strong>
+                </div>
               </div>
 
               <div class="control-row">

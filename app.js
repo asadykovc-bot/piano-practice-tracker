@@ -20,7 +20,9 @@ const els = {
   todayTotal: document.getElementById("todayTotal"),
   compactSessionTime: document.getElementById("compactSessionTime"),
   stopwatch: document.getElementById("stopwatch"),
+  timeDetails: document.getElementById("timeDetails"),
   stopwatchWrap: document.getElementById("stopwatchWrap"),
+  quietSession: document.getElementById("quietSession"),
   toggleStopwatch: document.getElementById("toggleStopwatch"),
   toggleStopwatchText: document.getElementById("toggleStopwatchText"),
   toggleStopwatchIcon: document.getElementById("toggleStopwatchIcon"),
@@ -194,7 +196,8 @@ function saveToday() {
 
 function setStopwatchVisible(visible) {
   state.stopwatchVisible = visible;
-  els.stopwatchWrap.hidden = !visible;
+  els.timeDetails.hidden = !visible;
+  els.quietSession.hidden = visible;
   els.toggleStopwatch.setAttribute("aria-expanded", String(visible));
   els.toggleStopwatchText.textContent = visible ? "Hide Stopwatch" : "Show Stopwatch";
   els.toggleStopwatchIcon.textContent = visible ? "◴" : "◷";
