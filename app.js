@@ -10,7 +10,10 @@ const state = {
   bpm: DEFAULT_BPM,
   metronomeRunning: false,
   audioContext: null,
-  metronomeTimer: null,
+  metronomeRaf: null,
+  lastBeatAt: 0,
+  nextBeatAt: 0,
+  beatSide: 0,
   wakeLock: null,
 };
 
@@ -227,6 +230,33 @@ function tick() {
   oscillator.stop(now + 0.06);
 }
 
+function setPendulumPosition(percent) {
+  els.pendulum.style.left = `${percent}%`;
+  els.pendulum.style.transform = `translate(${percent === 100 ? "-100%" : "0"}, -50%)`;
+}
+
+function runMetronomeFrame(now) {
+  if (!state.metronomeRunning) {
+    return;
+  }
+
+  const interval = 60000 / state.bpm;
+
+  while (now >= state.nextBeatAt) {
+    state.beatSide = state.beatSide === 0 ? 1 : 0;
+    state.lastBeatAt = state.nextBeatAt;
+    state.nextBeatAt += interval;
+    setPendulumPosition(state.beatSide * 100);
+    tick();
+  }
+
+  const progress = Math.min(1, Math.max(0, (now - state.lastBeatAt) / interval));
+  const start = state.beatSide * 100;
+  const end = state.beatSide === 0 ? 100 : 0;
+  setPendulumPosition(start + (end - start) * progress);
+  state.metronomeRaf = window.requestAnimationFrame(runMetronomeFrame);
+}
+
 async function startMetronome() {
   const context = getAudioContext();
   if (context.state === "suspended") {
@@ -234,16 +264,21 @@ async function startMetronome() {
   }
 
   state.metronomeRunning = true;
-  tick();
-  state.metronomeTimer = window.setInterval(tick, 60000 / state.bpm);
+  state.beatSide = 0;
+  state.lastBeatAt = performance.now();
+  state.nextBeatAt = state.lastBeatAt + 60000 / state.bpm;
+  setPendulumPosition(0);
   renderMetronome();
+  tick();
+  state.metronomeRaf = window.requestAnimationFrame(runMetronomeFrame);
 }
 
 function stopMetronome() {
   state.metronomeRunning = false;
-  window.clearInterval(state.metronomeTimer);
-  state.metronomeTimer = null;
+  window.cancelAnimationFrame(state.metronomeRaf);
+  state.metronomeRaf = null;
   renderMetronome();
+  setPendulumPosition(0);
 }
 
 function restartMetronomeIfNeeded() {
@@ -252,16 +287,19 @@ function restartMetronomeIfNeeded() {
     return;
   }
 
-  window.clearInterval(state.metronomeTimer);
-  tick();
-  state.metronomeTimer = window.setInterval(tick, 60000 / state.bpm);
+  window.cancelAnimationFrame(state.metronomeRaf);
+  state.beatSide = 0;
+  state.lastBeatAt = performance.now();
+  state.nextBeatAt = state.lastBeatAt + 60000 / state.bpm;
+  setPendulumPosition(0);
   renderMetronome();
+  tick();
+  state.metronomeRaf = window.requestAnimationFrame(runMetronomeFrame);
 }
 
 function setBpm(value) {
   state.bpm = clampBpm(value);
   els.bpmInput.value = String(state.bpm);
-  document.documentElement.style.setProperty("--beat-duration", `${60000 / state.bpm}ms`);
   saveState();
   restartMetronomeIfNeeded();
 }
@@ -318,8 +356,6 @@ function renderStats() {
 
 function renderMetronome() {
   els.metronomeToggle.textContent = state.metronomeRunning ? "Stop" : "Start";
-  els.pendulum.classList.toggle("active", state.metronomeRunning);
-  document.documentElement.style.setProperty("--beat-duration", `${60000 / state.bpm}ms`);
 }
 
 function render() {
@@ -424,7 +460,7 @@ function bindEvents() {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js?v=3").catch(() => {});
+    navigator.serviceWorker.register("./service-worker.js?v=4").catch(() => {});
   }
 }
 
