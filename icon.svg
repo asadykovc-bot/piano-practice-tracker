@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Piano Practice Tracker icon">
+  <rect width="512" height="512" rx="96" fill="#f7f4ee"/>
+  <rect x="86" y="130" width="340" height="252" rx="24" fill="#24211d"/>
+  <rect x="112" y="156" width="48" height="200" rx="10" fill="#fff8eb"/>
+  <rect x="168" y="156" width="48" height="200" rx="10" fill="#fff8eb"/>
+  <rect x="224" y="156" width="48" height="200" rx="10" fill="#fff8eb"/>
+  <rect x="280" y="156" width="48" height="200" rx="10" fill="#fff8eb"/>
+  <rect x="336" y="156" width="48" height="200" rx="10" fill="#fff8eb"/>
+  <rect x="146" y="156" width="34" height="116" rx="8" fill="#0c7a6b"/>
+  <rect x="202" y="156" width="34" height="116" rx="8" fill="#0c7a6b"/>
+  <rect x="314" y="156" width="34" height="116" rx="8" fill="#0c7a6b"/>
+  <circle cx="394" cy="118" r="36" fill="#0c7a6b"/>
+  <path d="M394 96v24l18 10" fill="none" stroke="#fff8eb" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f7f4ee">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Piano Practice">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Piano Practice Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Piano Practice</p>
+          <h1>Practice Tracker</h1>
+        </div>
+        <div class="status-pill" id="runStatus" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="runStatusText">Ready</span>
+        </div>
+      </header>
+
+      <main>
+        <section class="tab-panel active" id="practicePanel" aria-labelledby="practiceTab">
+          <div class="practice-grid">
+            <section class="panel practice-panel">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Session</p>
+                  <h2>Today</h2>
+                </div>
+                <button class="icon-button" id="toggleStopwatch" type="button" aria-expanded="false" aria-controls="stopwatchWrap" title="Show stopwatch">
+                  <span id="toggleStopwatchIcon" aria-hidden="true">◷</span>
+                  <span id="toggleStopwatchText">Show Stopwatch</span>
+                </button>
+              </div>
+
+              <div class="timer-summary">
+                <div>
+                  <span class="summary-label">Saved today</span>
+                  <strong id="todayTotal">0m</strong>
+                </div>
+                <div>
+                  <span class="summary-label">Current session</span>
+                  <strong id="compactSessionTime">0m</strong>
+                </div>
+              </div>
+
+              <div class="stopwatch-wrap" id="stopwatchWrap" hidden>
+                <div class="stopwatch" id="stopwatch">00:00:00</div>
+              </div>
+
+              <div class="control-row">
+                <button class="primary-button" id="startPauseButton" type="button">Start Practice</button>
+                <button class="secondary-button" id="saveButton" type="button" disabled>Save Today</button>
+              </div>
+
+              <div class="wake-row" id="wakeStatus">
+                <span class="small-dot" aria-hidden="true"></span>
+                <span id="wakeStatusText">Screen wake lock will start with practice when supported.</span>
+              </div>
+            </section>
+
+            <section class="panel metronome-panel">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Metronome</p>
+                  <h2>Tempo</h2>
+                </div>
+                <button class="secondary-button compact" id="metronomeToggle" type="button">Start</button>
+              </div>
+
+              <div class="metronome-stage" aria-hidden="true">
+                <div class="rail">
+                  <div class="pendulum" id="pendulum"></div>
+                </div>
+              </div>
+
+              <div class="bpm-control">
+                <button class="step-button" id="bpmDown" type="button" aria-label="Decrease BPM">−</button>
+                <label class="bpm-input-wrap">
+                  <span>BPM</span>
+                  <input id="bpmInput" type="number" inputmode="numeric" min="30" max="240" step="1" value="80">
+                </label>
+                <button class="step-button" id="bpmUp" type="button" aria-label="Increase BPM">+</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="statsPanel" aria-labelledby="statsTab">
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Progress</p>
+                <h2>Stats</h2>
+              </div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-block">
+                <span>7-day average</span>
+                <strong id="weekAverage">0m</strong>
+              </div>
+              <div class="stat-block">
+                <span>30-day average</span>
+                <strong id="monthAverage">0m</strong>
+              </div>
+              <div class="stat-block">
+                <span>7-day total</span>
+                <strong id="weekTotal">0m</strong>
+              </div>
+              <div class="stat-block">
+                <span>30-day total</span>
+                <strong id="monthTotal">0m</strong>
+              </div>
+            </div>
+
+            <div class="chart" id="weekChart" aria-label="Last 7 days chart"></div>
+          </section>
+
+          <section class="panel history-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Log</p>
+                <h2>History</h2>
+              </div>
+            </div>
+            <div class="history-list" id="historyList"></div>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="dataPanel" aria-labelledby="dataTab">
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Backup</p>
+                <h2>Import and Export</h2>
+              </div>
+            </div>
+
+            <div class="data-actions">
+              <button class="primary-button" id="exportButton" type="button">Export History</button>
+              <label class="file-button">
+                <input id="importInput" type="file" accept="application/json,.json">
+                Import History
+              </label>
+              <button class="danger-button" id="clearButton" type="button">Clear History</button>
+            </div>
+
+            <p class="helper-text" id="dataMessage" aria-live="polite">
+              Export creates a JSON backup. Import merges entries by date.
+            </p>
+          </section>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Main navigation">
+        <button class="nav-button active" id="practiceTab" type="button" data-tab="practicePanel">Practice</button>
+        <button class="nav-button" id="statsTab" type="button" data-tab="statsPanel">Stats</button>
+        <button class="nav-button" id="dataTab" type="button" data-tab="dataPanel">Data</button>
+      </nav>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
