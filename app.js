@@ -34,6 +34,7 @@ const els = {
   wakeStatus: document.getElementById("wakeStatus"),
   wakeStatusText: document.getElementById("wakeStatusText"),
   metronomeToggle: document.getElementById("metronomeToggle"),
+  metronomeRail: document.getElementById("metronomeRail"),
   pendulum: document.getElementById("pendulum"),
   bpmInput: document.getElementById("bpmInput"),
   bpmDown: document.getElementById("bpmDown"),
@@ -231,7 +232,10 @@ function tick() {
 }
 
 function setPendulumPosition(percent) {
-  els.pendulum.style.left = `${percent}%`;
+  const railWidth = els.metronomeRail.clientWidth;
+  const ballWidth = els.pendulum.offsetWidth;
+  const maxLeft = Math.max(0, railWidth - ballWidth);
+  els.pendulum.style.left = `${maxLeft * (percent / 100)}px`;
 }
 
 function runMetronomeFrame(now) {
@@ -459,7 +463,7 @@ function bindEvents() {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js?v=5").catch(() => {});
+    navigator.serviceWorker.register("./service-worker.js?v=6").catch(() => {});
   }
 }
 
