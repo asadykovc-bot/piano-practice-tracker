@@ -8,10 +8,10 @@
     <meta name="apple-mobile-web-app-title" content="Piano Practice">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Piano Practice Tracker</title>
-    <link rel="manifest" href="manifest.json?v=7">
+    <link rel="manifest" href="manifest.json?v=8">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=7">
+    <link rel="stylesheet" href="styles.css?v=8">
   </head>
   <body>
     <div class="app-shell">
@@ -45,7 +45,14 @@
                 <div class="timer-summary">
                   <div>
                     <span class="summary-label">Saved today</span>
-                    <strong id="todayTotal">0m</strong>
+                    <button class="inline-time-button" id="editTodayButton" type="button">
+                      <strong id="todayTotal">0m</strong>
+                    </button>
+                    <div class="inline-edit" id="todayEditWrap" hidden>
+                      <input id="todayEditInput" type="text" inputmode="text" aria-label="Edit saved time" placeholder="2m or 00:02:00">
+                      <button class="confirm-button" id="confirmTodayEdit" type="button" aria-label="Save edited time">✓</button>
+                      <button class="cancel-button" id="cancelTodayEdit" type="button" aria-label="Cancel editing">×</button>
+                    </div>
                   </div>
                   <div>
                     <span class="summary-label">Current session</span>
@@ -55,23 +62,6 @@
 
                 <div class="stopwatch-wrap" id="stopwatchWrap">
                   <div class="stopwatch" id="stopwatch">00:00:00</div>
-                </div>
-
-                <div class="edit-today">
-                  <div>
-                    <span class="summary-label">Edit today's saved time</span>
-                    <div class="edit-inputs">
-                      <label>
-                        <span>Hours</span>
-                        <input id="editTodayHours" type="number" inputmode="numeric" min="0" max="24" step="1" value="0">
-                      </label>
-                      <label>
-                        <span>Minutes</span>
-                        <input id="editTodayMinutes" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
-                      </label>
-                    </div>
-                  </div>
-                  <button class="secondary-button" id="applyTodayEdit" type="button">Set Today</button>
                 </div>
               </div>
 
@@ -194,6 +184,6 @@
       </nav>
     </div>
 
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
   </body>
 </html>
