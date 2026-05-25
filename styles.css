@@ -158,6 +158,7 @@ h2 {
 
 .timer-summary > div,
 .quiet-session,
+.edit-today,
 .stat-block {
   min-height: 88px;
   padding: 14px;
@@ -176,6 +177,42 @@ h2 {
   margin-top: 8px;
   font-size: clamp(1.35rem, 6vw, 2rem);
   line-height: 1;
+}
+
+.edit-today {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.edit-inputs {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.edit-inputs label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.edit-inputs input {
+  width: 96px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 850;
+  text-align: center;
 }
 
 .summary-label,
@@ -545,8 +582,14 @@ button:disabled {
     display: grid;
   }
 
+  .edit-today {
+    display: grid;
+    align-items: stretch;
+  }
+
   .icon-button,
-  .secondary-button.compact {
+  .secondary-button.compact,
+  .edit-today .secondary-button {
     width: 100%;
     justify-content: center;
   }

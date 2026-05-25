@@ -26,6 +26,9 @@ const els = {
   timeDetails: document.getElementById("timeDetails"),
   stopwatchWrap: document.getElementById("stopwatchWrap"),
   quietSession: document.getElementById("quietSession"),
+  editTodayHours: document.getElementById("editTodayHours"),
+  editTodayMinutes: document.getElementById("editTodayMinutes"),
+  applyTodayEdit: document.getElementById("applyTodayEdit"),
   toggleStopwatch: document.getElementById("toggleStopwatch"),
   toggleStopwatchText: document.getElementById("toggleStopwatchText"),
   toggleStopwatchIcon: document.getElementById("toggleStopwatchIcon"),
@@ -195,6 +198,32 @@ function saveToday() {
   state.entries[key] = (state.entries[key] || 0) + seconds;
   state.sessionSeconds = 0;
   saveState();
+  syncTodayEditInputs();
+  render();
+}
+
+function syncTodayEditInputs() {
+  const seconds = state.entries[todayKey()] || 0;
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  els.editTodayHours.value = String(hours);
+  els.editTodayMinutes.value = String(minutes);
+}
+
+function applyTodayEdit() {
+  const hours = Math.max(0, Math.min(24, Math.round(Number(els.editTodayHours.value) || 0)));
+  const minutes = Math.max(0, Math.min(59, Math.round(Number(els.editTodayMinutes.value) || 0)));
+  const seconds = hours * 3600 + minutes * 60;
+  const key = todayKey();
+
+  if (seconds > 0) {
+    state.entries[key] = seconds;
+  } else {
+    delete state.entries[key];
+  }
+
+  saveState();
+  syncTodayEditInputs();
   render();
 }
 
@@ -202,6 +231,9 @@ function setStopwatchVisible(visible) {
   state.stopwatchVisible = visible;
   els.timeDetails.hidden = !visible;
   els.quietSession.hidden = visible;
+  if (visible) {
+    syncTodayEditInputs();
+  }
   els.toggleStopwatch.setAttribute("aria-expanded", String(visible));
   els.toggleStopwatchText.textContent = visible ? "Hide Stopwatch" : "Show Stopwatch";
   els.toggleStopwatchIcon.textContent = visible ? "◴" : "◷";
@@ -406,6 +438,7 @@ function importHistory(file) {
       }
 
       saveState();
+      syncTodayEditInputs();
       render();
       els.dataMessage.textContent = `Imported ${incomingCount} day${incomingCount === 1 ? "" : "s"} and merged by date.`;
     } catch {
@@ -422,6 +455,7 @@ function clearHistory() {
 
   state.entries = {};
   saveState();
+  syncTodayEditInputs();
   render();
   els.dataMessage.textContent = "History cleared.";
 }
@@ -439,6 +473,7 @@ function bindEvents() {
   els.toggleStopwatch.addEventListener("click", () => setStopwatchVisible(!state.stopwatchVisible));
   els.startPauseButton.addEventListener("click", () => (state.running ? pausePractice() : startPractice()));
   els.saveButton.addEventListener("click", saveToday);
+  els.applyTodayEdit.addEventListener("click", applyTodayEdit);
   els.metronomeToggle.addEventListener("click", () => (state.metronomeRunning ? stopMetronome() : startMetronome()));
   els.bpmDown.addEventListener("click", () => setBpm(state.bpm - 1));
   els.bpmUp.addEventListener("click", () => setBpm(state.bpm + 1));
@@ -463,7 +498,7 @@ function bindEvents() {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js?v=6").catch(() => {});
+    navigator.serviceWorker.register("./service-worker.js?v=7").catch(() => {});
   }
 }
 
