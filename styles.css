@@ -158,7 +158,6 @@ h2 {
 
 .timer-summary > div,
 .quiet-session,
-.edit-today,
 .stat-block {
   min-height: 88px;
   padding: 14px;
@@ -179,42 +178,6 @@ h2 {
   line-height: 1;
 }
 
-.edit-today {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 16px;
-}
-
-.edit-inputs {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-
-.edit-inputs label {
-  display: grid;
-  gap: 5px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.edit-inputs input {
-  width: 96px;
-  height: 46px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: white;
-  color: var(--ink);
-  font-size: 1.25rem;
-  font-weight: 850;
-  text-align: center;
-}
-
 .summary-label,
 .stat-block span {
   display: block;
@@ -229,6 +192,55 @@ h2 {
   margin-top: 8px;
   font-size: clamp(1.35rem, 6vw, 2rem);
   line-height: 1;
+}
+
+.inline-time-button {
+  display: block;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.inline-time-button strong {
+  margin-top: 0;
+}
+
+.inline-edit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px 46px;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.inline-edit input {
+  min-width: 0;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
+  color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 800;
+  padding: 0 10px;
+}
+
+.confirm-button,
+.cancel-button {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--accent-dark);
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.cancel-button {
+  color: var(--warning);
 }
 
 .stopwatch-wrap {
@@ -582,14 +594,8 @@ button:disabled {
     display: grid;
   }
 
-  .edit-today {
-    display: grid;
-    align-items: stretch;
-  }
-
   .icon-button,
-  .secondary-button.compact,
-  .edit-today .secondary-button {
+  .secondary-button.compact {
     width: 100%;
     justify-content: center;
   }

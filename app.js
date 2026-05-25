@@ -26,9 +26,11 @@ const els = {
   timeDetails: document.getElementById("timeDetails"),
   stopwatchWrap: document.getElementById("stopwatchWrap"),
   quietSession: document.getElementById("quietSession"),
-  editTodayHours: document.getElementById("editTodayHours"),
-  editTodayMinutes: document.getElementById("editTodayMinutes"),
-  applyTodayEdit: document.getElementById("applyTodayEdit"),
+  editTodayButton: document.getElementById("editTodayButton"),
+  todayEditWrap: document.getElementById("todayEditWrap"),
+  todayEditInput: document.getElementById("todayEditInput"),
+  confirmTodayEdit: document.getElementById("confirmTodayEdit"),
+  cancelTodayEdit: document.getElementById("cancelTodayEdit"),
   toggleStopwatch: document.getElementById("toggleStopwatch"),
   toggleStopwatchText: document.getElementById("toggleStopwatchText"),
   toggleStopwatchIcon: document.getElementById("toggleStopwatchIcon"),
@@ -198,22 +200,82 @@ function saveToday() {
   state.entries[key] = (state.entries[key] || 0) + seconds;
   state.sessionSeconds = 0;
   saveState();
-  syncTodayEditInputs();
   render();
 }
 
-function syncTodayEditInputs() {
-  const seconds = state.entries[todayKey()] || 0;
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  els.editTodayHours.value = String(hours);
-  els.editTodayMinutes.value = String(minutes);
+function formatEditValue(seconds) {
+  const safeSeconds = Math.max(0, Math.round(seconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const secs = safeSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+
+  return `${minutes}:${String(secs).padStart(2, "0")}`;
+}
+
+function parseTimeInput(value) {
+  const input = value.trim().toLowerCase().replace(/,/g, ".");
+  if (!input) {
+    return 0;
+  }
+
+  if (input.includes(":")) {
+    const parts = input.split(":").map((part) => Number(part.trim()));
+    if (parts.some((part) => !Number.isFinite(part) || part < 0)) {
+      return null;
+    }
+
+    if (parts.length === 2) {
+      return Math.round(parts[0] * 60 + parts[1]);
+    }
+
+    if (parts.length === 3) {
+      return Math.round(parts[0] * 3600 + parts[1] * 60 + parts[2]);
+    }
+
+    return null;
+  }
+
+  const matches = [...input.matchAll(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes|s|sec|secs|second|seconds)/g)];
+  if (matches.length) {
+    return Math.round(
+      matches.reduce((total, match) => {
+        const amount = Number(match[1]);
+        const unit = match[2][0];
+        if (unit === "h") return total + amount * 3600;
+        if (unit === "m") return total + amount * 60;
+        return total + amount;
+      }, 0)
+    );
+  }
+
+  const minutes = Number(input);
+  return Number.isFinite(minutes) && minutes >= 0 ? Math.round(minutes * 60) : null;
+}
+
+function openTodayEdit() {
+  els.editTodayButton.hidden = true;
+  els.todayEditWrap.hidden = false;
+  els.todayEditInput.value = formatEditValue(state.entries[todayKey()] || 0);
+  els.todayEditInput.focus();
+  els.todayEditInput.select();
+}
+
+function closeTodayEdit() {
+  els.todayEditWrap.hidden = true;
+  els.editTodayButton.hidden = false;
 }
 
 function applyTodayEdit() {
-  const hours = Math.max(0, Math.min(24, Math.round(Number(els.editTodayHours.value) || 0)));
-  const minutes = Math.max(0, Math.min(59, Math.round(Number(els.editTodayMinutes.value) || 0)));
-  const seconds = hours * 3600 + minutes * 60;
+  const seconds = parseTimeInput(els.todayEditInput.value);
+  if (seconds === null) {
+    els.todayEditInput.focus();
+    return;
+  }
+
   const key = todayKey();
 
   if (seconds > 0) {
@@ -223,7 +285,7 @@ function applyTodayEdit() {
   }
 
   saveState();
-  syncTodayEditInputs();
+  closeTodayEdit();
   render();
 }
 
@@ -231,9 +293,7 @@ function setStopwatchVisible(visible) {
   state.stopwatchVisible = visible;
   els.timeDetails.hidden = !visible;
   els.quietSession.hidden = visible;
-  if (visible) {
-    syncTodayEditInputs();
-  }
+  closeTodayEdit();
   els.toggleStopwatch.setAttribute("aria-expanded", String(visible));
   els.toggleStopwatchText.textContent = visible ? "Hide Stopwatch" : "Show Stopwatch";
   els.toggleStopwatchIcon.textContent = visible ? "◴" : "◷";
@@ -434,11 +494,10 @@ function importHistory(file) {
       }
 
       for (const [date, seconds] of Object.entries(incoming)) {
-        state.entries[date] = (state.entries[date] || 0) + seconds;
+      state.entries[date] = (state.entries[date] || 0) + seconds;
       }
 
       saveState();
-      syncTodayEditInputs();
       render();
       els.dataMessage.textContent = `Imported ${incomingCount} day${incomingCount === 1 ? "" : "s"} and merged by date.`;
     } catch {
@@ -455,7 +514,7 @@ function clearHistory() {
 
   state.entries = {};
   saveState();
-  syncTodayEditInputs();
+  closeTodayEdit();
   render();
   els.dataMessage.textContent = "History cleared.";
 }
@@ -473,7 +532,17 @@ function bindEvents() {
   els.toggleStopwatch.addEventListener("click", () => setStopwatchVisible(!state.stopwatchVisible));
   els.startPauseButton.addEventListener("click", () => (state.running ? pausePractice() : startPractice()));
   els.saveButton.addEventListener("click", saveToday);
-  els.applyTodayEdit.addEventListener("click", applyTodayEdit);
+  els.editTodayButton.addEventListener("click", openTodayEdit);
+  els.confirmTodayEdit.addEventListener("click", applyTodayEdit);
+  els.cancelTodayEdit.addEventListener("click", closeTodayEdit);
+  els.todayEditInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      applyTodayEdit();
+    }
+    if (event.key === "Escape") {
+      closeTodayEdit();
+    }
+  });
   els.metronomeToggle.addEventListener("click", () => (state.metronomeRunning ? stopMetronome() : startMetronome()));
   els.bpmDown.addEventListener("click", () => setBpm(state.bpm - 1));
   els.bpmUp.addEventListener("click", () => setBpm(state.bpm + 1));
@@ -498,7 +567,7 @@ function bindEvents() {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js?v=7").catch(() => {});
+    navigator.serviceWorker.register("./service-worker.js?v=8").catch(() => {});
   }
 }
 
