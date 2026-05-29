@@ -8,10 +8,10 @@
     <meta name="apple-mobile-web-app-title" content="Piano Practice">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Piano Practice Tracker</title>
-    <link rel="manifest" href="manifest.json?v=8">
+    <link rel="manifest" href="manifest.json?v=9">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=9">
   </head>
   <body>
     <div class="app-shell">
@@ -106,6 +106,14 @@
                 </label>
                 <button class="step-button" id="bpmUp" type="button" aria-label="Increase BPM">+</button>
               </div>
+
+              <div class="subdivision-control" aria-label="Subdivision">
+                <span>Subdivision</span>
+                <div class="segmented-control">
+                  <button class="segment-button active" id="quarterSubdivision" type="button" data-subdivision="1">Quarter</button>
+                  <button class="segment-button" id="eighthSubdivision" type="button" data-subdivision="2">Eighths</button>
+                </div>
+              </div>
             </section>
           </div>
         </section>
@@ -184,6 +192,6 @@
       </nav>
     </div>
 
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
   </body>
 </html>

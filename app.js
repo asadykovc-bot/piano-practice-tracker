@@ -8,11 +8,13 @@ const state = {
   running: false,
   stopwatchVisible: false,
   bpm: DEFAULT_BPM,
+  subdivision: 1,
   metronomeRunning: false,
   audioContext: null,
   metronomeRaf: null,
   lastBeatAt: 0,
   nextBeatAt: 0,
+  nextSubdivisionAt: 0,
   beatSide: 0,
   wakeLock: null,
 };
@@ -44,6 +46,8 @@ const els = {
   bpmInput: document.getElementById("bpmInput"),
   bpmDown: document.getElementById("bpmDown"),
   bpmUp: document.getElementById("bpmUp"),
+  quarterSubdivision: document.getElementById("quarterSubdivision"),
+  eighthSubdivision: document.getElementById("eighthSubdivision"),
   weekAverage: document.getElementById("weekAverage"),
   monthAverage: document.getElementById("monthAverage"),
   weekTotal: document.getElementById("weekTotal"),
@@ -107,6 +111,9 @@ function loadState() {
     if (Number.isFinite(saved.bpm)) {
       state.bpm = clampBpm(saved.bpm);
     }
+    if (saved.subdivision === 1 || saved.subdivision === 2) {
+      state.subdivision = saved.subdivision;
+    }
   } catch {
     state.entries = {};
   }
@@ -119,6 +126,7 @@ function saveState() {
       version: 1,
       entries: state.entries,
       bpm: state.bpm,
+      subdivision: state.subdivision,
       updatedAt: new Date().toISOString(),
     })
   );
@@ -307,20 +315,20 @@ function getAudioContext() {
   return state.audioContext;
 }
 
-function tick() {
+function tick(isSubdivision = false) {
   const context = getAudioContext();
   const oscillator = context.createOscillator();
   const gain = context.createGain();
   const now = context.currentTime;
 
-  oscillator.frequency.setValueAtTime(980, now);
+  oscillator.frequency.setValueAtTime(isSubdivision ? 1320 : 980, now);
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.32, now + 0.006);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+  gain.gain.exponentialRampToValueAtTime(isSubdivision ? 0.14 : 0.32, now + 0.006);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + (isSubdivision ? 0.04 : 0.055));
   oscillator.connect(gain);
   gain.connect(context.destination);
   oscillator.start(now);
-  oscillator.stop(now + 0.06);
+  oscillator.stop(now + (isSubdivision ? 0.045 : 0.06));
 }
 
 function setPendulumPosition(percent) {
@@ -341,8 +349,14 @@ function runMetronomeFrame(now) {
     state.beatSide = state.beatSide === 0 ? 1 : 0;
     state.lastBeatAt = state.nextBeatAt;
     state.nextBeatAt += interval;
+    state.nextSubdivisionAt = state.lastBeatAt + interval / 2;
     setPendulumPosition(state.beatSide * 100);
     tick();
+  }
+
+  if (state.subdivision === 2 && now >= state.nextSubdivisionAt && state.nextSubdivisionAt > state.lastBeatAt) {
+    tick(true);
+    state.nextSubdivisionAt = Number.POSITIVE_INFINITY;
   }
 
   const progress = Math.min(1, Math.max(0, (now - state.lastBeatAt) / interval));
@@ -361,7 +375,9 @@ async function startMetronome() {
   state.metronomeRunning = true;
   state.beatSide = 0;
   state.lastBeatAt = performance.now();
-  state.nextBeatAt = state.lastBeatAt + 60000 / state.bpm;
+  const interval = 60000 / state.bpm;
+  state.nextBeatAt = state.lastBeatAt + interval;
+  state.nextSubdivisionAt = state.subdivision === 2 ? state.lastBeatAt + interval / 2 : Number.POSITIVE_INFINITY;
   setPendulumPosition(0);
   renderMetronome();
   tick();
@@ -385,7 +401,9 @@ function restartMetronomeIfNeeded() {
   window.cancelAnimationFrame(state.metronomeRaf);
   state.beatSide = 0;
   state.lastBeatAt = performance.now();
-  state.nextBeatAt = state.lastBeatAt + 60000 / state.bpm;
+  const interval = 60000 / state.bpm;
+  state.nextBeatAt = state.lastBeatAt + interval;
+  state.nextSubdivisionAt = state.subdivision === 2 ? state.lastBeatAt + interval / 2 : Number.POSITIVE_INFINITY;
   setPendulumPosition(0);
   renderMetronome();
   tick();
@@ -396,6 +414,13 @@ function setBpm(value) {
   state.bpm = clampBpm(value);
   els.bpmInput.value = String(state.bpm);
   saveState();
+  restartMetronomeIfNeeded();
+}
+
+function setSubdivision(value) {
+  state.subdivision = value === 2 ? 2 : 1;
+  saveState();
+  renderMetronome();
   restartMetronomeIfNeeded();
 }
 
@@ -451,6 +476,8 @@ function renderStats() {
 
 function renderMetronome() {
   els.metronomeToggle.textContent = state.metronomeRunning ? "Stop" : "Start";
+  els.quarterSubdivision.classList.toggle("active", state.subdivision === 1);
+  els.eighthSubdivision.classList.toggle("active", state.subdivision === 2);
 }
 
 function render() {
@@ -547,6 +574,8 @@ function bindEvents() {
   els.bpmDown.addEventListener("click", () => setBpm(state.bpm - 1));
   els.bpmUp.addEventListener("click", () => setBpm(state.bpm + 1));
   els.bpmInput.addEventListener("change", () => setBpm(els.bpmInput.value));
+  els.quarterSubdivision.addEventListener("click", () => setSubdivision(1));
+  els.eighthSubdivision.addEventListener("click", () => setSubdivision(2));
   els.exportButton.addEventListener("click", exportHistory);
   els.importInput.addEventListener("change", () => {
     const file = els.importInput.files && els.importInput.files[0];
@@ -567,7 +596,7 @@ function bindEvents() {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js?v=8").catch(() => {});
+    navigator.serviceWorker.register("./service-worker.js?v=9").catch(() => {});
   }
 }
 

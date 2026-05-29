@@ -374,6 +374,43 @@ button:disabled {
   gap: 12px;
 }
 
+.subdivision-control {
+  display: grid;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(92px, 1fr));
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+}
+
+.segment-button {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.segment-button.active {
+  border-color: rgba(12, 122, 107, 0.2);
+  background: white;
+  color: var(--accent-dark);
+}
+
 .step-button {
   width: 54px;
   height: 54px;
